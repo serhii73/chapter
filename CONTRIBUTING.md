@@ -1,19 +1,28 @@
 **Table of Contents**
 
-* [Contribution Guidelines](#contribution-guidelines)
-* [Contributing Code](#contributing-code)
-* [Running the Application](#running-the-application)
-* [Frequently Asked Questions](#frequently-asked-questions)
-* [Server-side Technical Documentation](#server-side-technical-documentation)
-  * [API Specification](#api-specification)
-  * [.env Configuration File](#env-configuration-file)
-  * [Database](#database)
-    * [Schema](#schema)
-    * [Username and Password](#username-and-password)
-    * [Host and Port](#host-and-port)
-    * [Admin Tools](#admin-tools)
-    * [Using TypeORM and NPM](#using-typeorm-and-npm)
-* [Troubleshooting](#troubleshooting)
+- [Contribution Guidelines](#contribution-guidelines)
+- [Contributing Code](#contributing-code)
+  - [Using GitPod](#using-gitpod)
+  - [Using a Traditional Dev Environment](#using-a-traditional-dev-environment)
+- [Running the Application](#running-the-application)
+  - [Docker Mode](#docker-mode)
+  - [Manual Mode](#manual-mode)
+- [Frequently Asked Questions](#frequently-asked-questions)
+- [Server-side Technical Documentation](#server-side-technical-documentation)
+  - [API Specification](#api-specification)
+  - [.env Configuration File](#env-configuration-file)
+  - [Database](#database)
+    - [Schema](#schema)
+    - [Username and Password](#username-and-password)
+    - [Host and Port](#host-and-port)
+    - [Admin Tools](#admin-tools)
+    - [Using TypeORM and NPM](#using-typeorm-and-npm)
+      - [Initializing the Database](#initializing-the-database)
+      - [Creating a New Model / Entity](#creating-a-new-model--entity)
+      - [Creating a Migration](#creating-a-migration)
+      - [Running Migrations and Checking They Were Run](#running-migrations-and-checking-they-were-run)
+- [Running Remotely](#running-remotely)
+- [Troubleshooting](#troubleshooting)
     
 # Contribution Guidelines
 
@@ -25,7 +34,17 @@ We strictly enforce our ["Code of Conduct"](https://www.freecodecamp.org/code-of
 
 # Contributing Code
 
-If you are ready to contribute code, then start by follow these steps.
+Consider the following options when you are ready to contribute code.
+* [GitPod.io](https://www.gitpod.io/docs) - a ready-to-code development environment that launches in the cloud.
+* Traditional Dev Environment - the common method of developing on a computer you control.
+
+## Using GitPod
+
+All [pull requests](https://github.com/freeCodeCamp/chapter/pulls) will have a GitPod link to allow for quickly opening an "ready-to-code" development environment for that specific issue / task. Follow the [GitPod documentation](https://www.gitpod.io/docs) to configure your account and "ephemeral" workspace.
+
+## Using a Traditional Dev Environment
+
+This approach is more common and involves the step below to setup and configuring a development environment within a local, virtual, or remote operating system that you own or control.
 
 <details><summary>Step 1 - Fork the Repository on GitHub</summary>
 
@@ -43,38 +62,40 @@ Follow these steps to fork the repository:
 
 <details><summary>Step 2 - Prepare the Development Environment</summary>
 
-**Prerequisite**: [Git](https://git-scm.com/downloads) must exist on your development operating system.
+**Prerequisite**:  All `commands` will be run within a terminal's command line / shell on your development device. Options vary by operating system.
 
-**Prerequisite**:  A supported command line terminal and shell must exist on your development operating system.
-* Linux: the pre-installed terminal, usually running a _bash_ or _sh_ shell, should work in its default "out of the box" configuration.
-* Mac: the pre-installed _Terminal_ in MacOS, usually running a zsh shell, should work in its default "out of the box" configuration.
-* Windows - you'll need a terminal and shell that support features of Linux. Options include:
-    * Installing / enabling [Windows Subsystem Linux with Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install-win10#step-6---install-your-linux-distribution-of-choice) along with a Linux terminal / shell, such as [_Ubuntu for Windows_](https://ubuntu.com/tutorials/ubuntu-on-windows)
-    * _Git Bash_ - this terminal + shell option is included with _Git for Windows_. It works, but is more likely to have permission errors or minor inconsistencies.
-    * _PowerShell_ and _cmd_ may work for running the **_Chapter_** app in _Docker Mode_, but these are not recommended for active development.
-    > Note: [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/) is a wrapper for the options above. It can be used in conjunction with the options above, such as _Windows Terminal_ running the _Ubuntu_ shell, but is not sufficient by itself.
+* Linux - the pre-installed terminal, usually running a _bash_ or _sh_ shell, should work in its default "out of the box" configuration.
+* Mac - the pre-installed _Terminal_ in MacOS, usually running a zsh shell, should work in its default "out of the box" configuration.
+* Windows - options for running a Linux terminal and shell within Windows include:
+    * [Windows Subsystem Linux with Linux (WSL)](https://docs.microsoft.com/en-us/windows/wsl/install-win10#manual-installation-steps) with a Linux distribution, such as [_Ubuntu 20.04 for Windows_](https://ubuntu.com/tutorials/ubuntu-on-windows) or [other supported Linux distributions](https://docs.microsoft.com/en-us/windows/wsl/install-win10#step-6---install-your-linux-distribution-of-choice).
+        > Note: [Windows Terminal](https://www.microsoft.com/en-us/p/windows-terminal/) is an **optional** terminal interface tool. It can only open a Linux shell if WSL and a Linux distro already exist.
+    * _Git Bash_ - this terminal shell emulates Linux and is included in _Git for Windows_. It works, but is more likely to have permission errors or minor inconsistencies.
+    * _PowerShell_ and _cmd_ may run the **_Chapter_** app in _Docker Mode_, but these Windows native shells are not supported for this project.
 
-All `commands` in this document need to be run within a terminal / shell.
+**Prerequisite**: [Git](https://git-scm.com/downloads) must exist (run ``git --version`` to check) within your development terminal / shell.
 
-1. Change directories (`cd`) to wherever you want the **_Chapter_** project to be downloaded by Git.
-    > Note: For Windows using WSL, it maintains its own file system. Use a sub-directory within WSL's /home/username/ filesystem. The alternative, using a directory within C:\, will cause everything to run very slowly.
+1. Decide if you will [authenticate to GitHub using SSH or HTTPS](https://docs.github.com/en/github/authenticating-to-github/about-authentication-to-github#authenticating-with-the-command-line).
+    * SSH - uses SSH key authentication instead of a username and password.
+    * HTTPS - uses a GitHub username and [personal access token (PAT)](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token).  For security, use a PAT instead of a GitHub password.
 
-2. [Clone](https://help.github.com/articles/cloning-a-repository/) your GitHub fork of **_Chapter_**. Replace _YOUR_USER_NAME_ with your GitHub username. Your forked repository of code will be referred to as the _origin_. 
+2. Change directories (`cd`) to wherever you want the **_Chapter_** project to be downloaded by Git.
+    > Note: Windows using WSL + a Linux distro maintains its own file system. Use a sub-directory within the Linux /home/username/ filesystem path. The alternative, using a directory within _C:\_ or _/mnt/c_, will cause everything to run very slowly.
 
-    > Note: This command will download the entire Git repository fork into a sub-directory named _chapter_ inside of the current directory.
+3. [Clone](https://docs.github.com/en/github/getting-started-with-github/about-remote-repositories) your GitHub fork of **_Chapter_** using the SSH or HTTP method you selected above. Replace _YOUR_USER_NAME_ with your GitHub username.
 
-    ```sh
-    git clone https://github.com/YOUR_USER_NAME/Chapter.git
-    ```
+    * [SSH method](https://docs.github.com/en/github/getting-started-with-github/about-remote-repositories#cloning-with-ssh-urls) - `git clone git@github.com:YOUR_USER_NAME/Chapter.git`
+    * [HTTPS method](https://docs.github.com/en/github/getting-started-with-github/about-remote-repositories#cloning-with-https-urls) - `git clone https://github.com/YOUR_USER_NAME/chapter.git`
+ 
+     This command will download the entire Git repository fork into a sub-directory named _chapter_ inside of the current directory. Your forked repository of code will be referred to as the _origin_ . 
 
-3. Configure the [**_Chapter_**](https://github.com/freeCodeCamp/chapter) repository as the _upstream_. Doing this allows you to regularly synchronize code changes from the _upstream_ to your _origin_ fork.
+4. Configure the [**_Chapter_**](https://github.com/freeCodeCamp/chapter) repository as the _upstream_. Doing this allows you to regularly synchronize code changes from the _upstream_ to your _origin_ fork.
 
     ```sh
     cd chapter
     git remote add upstream https://github.com/freeCodeCamp/chapter.git
     ```
 
-4. Ensure the _origin_ and _upstream_ configuration is correct:
+5. Ensure the _origin_ and _upstream_ configuration is correct:
 
     ```sh
     git remote -v
@@ -186,11 +207,13 @@ You are almost ready to make changes to files, but before that you should **alwa
         modified:   README.md
         ...
 
-5. Test your code **Always!** 
+5. Always Run Code Quality Tools 
 
-    * If you started the application using the _Docker Mode_, then tests are run using `NODE_ENV=test docker-compose exec app npm run test` OR if you want to use the "watch" mode run `NODE_ENV=test docker-compose exec app npm run test:watch`
-    * If you started the application using the _Manual Mode_ (without Docker), then tests are run using `npm run test` OR if you want to use the "watch" mode run `npm run test:watch`
+    Verify all automated code quality checks will pass before submitting a pull request because PRs with failures will not be merged.
 
+    * When using _Docker Mode_, run `NODE_ENV=test docker-compose exec app npm run lint-and-test` OR `NODE_ENV=test docker-compose exec app npm run test:watch` to start "watch" mode.
+    * When using _Manual Mode_, run `npm run lint-and-test` OR `npm run test:watch` to start "watch" mode.
+ 
 6. Stage the changes and make a commit
 
     In this step, you should only mark files that you have edited or added yourself. You can perform a reset and resolve files that you did not intend to change if needed.
@@ -319,6 +342,7 @@ Based on your experience or preference, decide between the two options:
 * _Docker Mode_: typically easier if you just want to start the application for the first time or don't want to run a local PostgreSQL database on your host computer. It will take longer to "boot up" the container than manual-mode and can be slow to reload some types of code changes.  
 * _Manual Mode_: more of a "hands-on" method, is more lightweight in that it's faster to "boot" and faster to refresh for some code changes, requires more knowledge of running PostgreSQL and configuring localhost services to play nice with the code.
 
+See [Running Remotely](#running-remotely) if you are using a remote server.
 ## Docker Mode
 
 **Prerequisite**: [Docker](https://docs.docker.com/get-docker/) must exist on your system:
@@ -456,8 +480,8 @@ This is [currently manually generated and updated](https://github.com/freeCodeCa
 ### Admin Tools 
 * [pgAdmin](https://www.pgadmin.org/), [Postico](https://eggerapps.at/postico/) or [Table Plus](https://tableplus.com/), can use your mode's **Host and Port** values as described above.
 * psql Client
-  * In **Docker Mode**, `psql -h localhost -p 54320 -U postgres`. You don't have to run `docker-compose exec...` commands to "talk" to the PostgreSQL container.
-  * In **Manual Mode**, `psql -h localhost -p 5432 -U postgres` 
+  * In **Docker Mode** - `psql -h localhost -p 54320 -U postgres`. You don't have to run `docker-compose exec...` commands to "talk" to the PostgreSQL container.
+  * In **Manual Mode** - `psql -h localhost -p 5432 -U postgres` 
 
 ### Using TypeORM and NPM
 
@@ -518,6 +542,10 @@ it should ouput something like
  ...
  [X] MigrationName1575633316367
 ```
+
+# Running Remotely
+
+When not running locally, the client needs to be passed the server's location by changing your [_.env_](#env-configuration-file) file to include `NEXT_PUBLIC_APOLLO_SERVER=<https://address.of.graphql.server:port>`.  For example, if you started **_Chapter_** with `npm run both` and hosted it on `https://example.com` then the address will be `https://example.com:5000`.
 
 # Troubleshooting
 

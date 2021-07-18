@@ -1,11 +1,10 @@
 import nodemailer, { Transporter, SentMessageInfo } from 'nodemailer';
-import { IMailerService } from 'types/services';
 import Utilities from '../util/Utilities';
 
 // @todo add ourEmail, emailUsername, emailPassword, and emailService as
 // environment variables when they become available. Temporary placeholders
 // provided until updated info available.
-export default class MailerService implements IMailerService {
+export default class MailerService {
   emailList: Array<string>;
   subject: string;
   htmlEmail: string;
@@ -15,6 +14,7 @@ export default class MailerService implements IMailerService {
   emailUsername: string;
   emailPassword: string;
   emailService: string;
+  emailHost: string;
 
   constructor(
     emailList: Array<string>,
@@ -33,6 +33,7 @@ export default class MailerService implements IMailerService {
     this.emailUsername = (process.env.EMAIL_USERNAME as string) || 'project.1';
     this.emailPassword = (process.env.EMAIL_PASSWORD as string) || 'secret.1';
     this.emailService = process.env.EMAIL_SERVICE as string;
+    this.emailHost = process.env.EMAIL_HOST || 'localhost';
 
     this.createTransporter();
   }
@@ -53,7 +54,7 @@ export default class MailerService implements IMailerService {
 
     this.transporter = nodemailer.createTransport({
       service: this.emailService,
-      host: 'localhost',
+      host: this.emailHost,
       port: 1025,
       auth: {
         user: this.emailUsername,

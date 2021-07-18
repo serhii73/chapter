@@ -2,14 +2,20 @@ import { gql } from '@apollo/client';
 
 export const EVENTS = gql`
   query events {
-    events {
+    events(showAll: true) {
       id
       name
       canceled
       description
       url
+      invite_only
       video_url
+      start_at
       capacity
+      venue {
+        id
+        name
+      }
       tags {
         id
         name
@@ -25,11 +31,16 @@ export const EVENT = gql`
       name
       description
       url
+      invite_only
       video_url
       canceled
       capacity
       start_at
       ends_at
+      chapter {
+        id
+        name
+      }
       tags {
         id
         name
@@ -48,8 +59,7 @@ export const EVENT = gql`
         on_waitlist
         user {
           id
-          first_name
-          last_name
+          name
         }
       }
     }
@@ -130,5 +140,27 @@ export const cancelEvent = gql`
 export const deleteEvent = gql`
   mutation deleteEvent($id: Int!) {
     deleteEvent(id: $id)
+  }
+`;
+
+export const confirmRSVP = gql`
+  mutation confirmRsvp($id: Int!) {
+    confirmRsvp(id: $id) {
+      id
+      confirmed_at
+      on_waitlist
+    }
+  }
+`;
+
+export const deleteRSVP = gql`
+  mutation deleteRsvp($id: Int!) {
+    deleteRsvp(id: $id)
+  }
+`;
+
+export const sendEventInvite = gql`
+  mutation sendEventInvite($id: Int!) {
+    sendEventInvite(id: $id)
   }
 `;

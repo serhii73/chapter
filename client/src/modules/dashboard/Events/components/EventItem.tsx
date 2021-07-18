@@ -2,8 +2,8 @@ import React from 'react';
 import { Card, Grid, makeStyles, Typography } from '@material-ui/core';
 import Link from 'next/link';
 
-import { Event, Tag } from '../../../../generated';
-import { ProgressCardContent } from '../../../../components';
+import { Event, Tag } from '../../../../generated/graphql';
+import ProgressCardContent from '../../../../components/ProgressCardContent';
 import Tags from './Tag';
 import Actions from './Actions';
 

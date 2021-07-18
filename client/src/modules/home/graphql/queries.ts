@@ -1,11 +1,30 @@
 import { gql } from '@apollo/client';
 
-export const CHAPTERS_QUERY = gql`
-  query chapters {
+export const HOME_PAGE_QUERY = gql`
+  query home($limit: Int, $offset: Int) {
+    paginatedEvents(limit: $limit, offset: $offset) {
+      id
+      name
+      description
+      invite_only
+      canceled
+      start_at
+      tags {
+        id
+        name
+      }
+      chapter {
+        id
+        name
+        category
+      }
+    }
     chapters {
       id
       name
       description
+      category
+      details
     }
   }
 `;

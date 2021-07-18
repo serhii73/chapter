@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import {
-  FormControl,
-  TextField,
+  VStack,
+  Checkbox,
   Button,
-  InputLabel,
+  FormLabel,
+  FormControl,
   Select,
-  MenuItem,
-} from '@material-ui/core';
+} from '@chakra-ui/react';
 import {
   EventFormProps,
   fields,
@@ -15,7 +15,9 @@ import {
   EventFormData,
 } from './EventFormUtils';
 import useFormStyles from '../../shared/components/formStyles';
-import { useVenuesQuery } from '../../../../generated';
+import { useVenuesQuery } from '../../../../generated/graphql';
+import { Input } from '../../../../components/Form/Input';
+import { TextArea } from '../../../../components/Form/TextArea';
 
 const EventForm: React.FC<EventFormProps> = (props) => {
   const { onSubmit, data, loading, submitText } = props;
@@ -25,69 +27,82 @@ const EventForm: React.FC<EventFormProps> = (props) => {
     data: dataVenues,
   } = useVenuesQuery();
 
-  const defaultValues = useMemo(
-    () => ({
-      ...(data || {}),
-      tags: (data?.tags || []).map((t) => t.name).join(', '),
-      venue: data?.venue?.id,
-    }),
-    [],
-  );
+  const defaultValues = useMemo(() => {
+    if (!data) return {};
+    return {
+      name: data.name,
+      description: data.description,
+      url: data.url,
+      video_url: data.video_url,
+      capacity: data.capacity,
+      start_at: data.start_at,
+      ends_at: data.ends_at,
+      tags: (data.tags || []).map((t) => t.name).join(', '),
+      venueId: data.venueId,
+    };
+  }, []);
 
-  const { control, handleSubmit } = useForm<EventFormData>({ defaultValues });
+  const { register, handleSubmit, watch, setValue } = useForm<EventFormData>({
+    defaultValues,
+  });
   const styles = useFormStyles();
+  const inviteOnly = watch('invite_only');
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-      {fields.map((field) => (
-        <FormControl className={styles.item} key={field.key}>
-          <Controller
-            control={control}
-            as={
-              <TextField
-                label={field.label}
-                type={field.type}
-                placeholder={field.placeholder}
-              />
-            }
-            name={field.key}
-            defaultValue={formatValue(field, data)}
-            options={{ required: true }}
-          />
-        </FormControl>
-      ))}
-      {loadingVenues ? (
-        <h1>Loading venues...</h1>
-      ) : errorVenus || !dataVenues ? (
-        <h1>Error loading venues</h1>
-      ) : (
-        <FormControl className={styles.item}>
-          <InputLabel id="venue-label">Venue</InputLabel>
-          <Controller
-            as={
-              <Select labelId="venue-label">
-                {dataVenues.venues.map((venue) => (
-                  <MenuItem value={venue.id} key={venue.id}>
-                    {venue.name}
-                  </MenuItem>
-                ))}
-                <MenuItem>None</MenuItem>
-              </Select>
-            }
-            name="venueId"
-            control={control}
-          />
-        </FormControl>
-      )}
-      <Button
-        className={styles.item}
-        variant="contained"
-        color="primary"
-        type="submit"
-        disabled={loading}
-      >
-        {submitText}
-      </Button>
+      <VStack align="flex-start">
+        {fields.map((field) =>
+          field.type === 'textarea' ? (
+            <TextArea
+              key={field.key}
+              label={field.label}
+              placeholder={field.placeholder}
+              isRequired
+              {...register(field.key)}
+              defaultValue={formatValue(field, data)}
+            />
+          ) : (
+            <Input
+              key={field.key}
+              label={field.label}
+              placeholder={field.placeholder}
+              isRequired
+              {...register(field.key)}
+              defaultValue={formatValue(field, data)}
+            />
+          ),
+        )}
+
+        <Checkbox
+          isChecked={inviteOnly}
+          onChange={(e) => setValue('invite_only', e.target.checked)}
+        >
+          Invite only
+        </Checkbox>
+
+        {loadingVenues ? (
+          <h1>Loading venues...</h1>
+        ) : errorVenus || !dataVenues ? (
+          <h1>Error loading venues</h1>
+        ) : (
+          <FormControl>
+            <FormLabel>Venue</FormLabel>
+            <Select {...register('venueId')}>
+              {dataVenues.venues.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.name}
+                </option>
+              ))}
+
+              <option>None</option>
+            </Select>
+          </FormControl>
+        )}
+
+        <Button colorScheme="blue" type="submit" isDisabled={loading}>
+          {submitText}
+        </Button>
+      </VStack>
     </form>
   );
 };

@@ -3,19 +3,13 @@ import { useForm } from 'react-hook-form';
 import { Button, FormControl } from '@material-ui/core';
 
 import useFormStyles from '../../shared/components/formStyles';
-import { Venue, VenueQuery } from '../../../../generated';
+import type { Venue, VenueQuery } from '../../../../generated/graphql';
 import { Field } from '../../../../components/Form/Fields';
 
-export interface VenueFormData {
-  name: string;
-  street_address?: string;
-  city: string;
-  postal_code: string;
-  region: string;
-  country: string;
-  latitude?: number;
-  longitude?: number;
-}
+export type VenueFormData = Omit<
+  Venue,
+  'id' | 'created_at' | 'updated_at' | 'events'
+>;
 
 interface VenueFormProps {
   loading: boolean;
@@ -25,9 +19,9 @@ interface VenueFormProps {
 }
 
 type Fields =
-  | [keyof Venue, boolean, boolean]
-  | [keyof Venue, boolean]
-  | [keyof Venue];
+  | [keyof VenueFormData, boolean, boolean]
+  | [keyof VenueFormData, boolean]
+  | [keyof VenueFormData];
 
 const fields: Fields[] = [
   ['name', true],
@@ -42,15 +36,21 @@ const fields: Fields[] = [
 
 const VenueForm: React.FC<VenueFormProps> = (props) => {
   const { loading, onSubmit, data, submitText } = props;
-
+  const venue = data?.venue;
   const styles = useFormStyles();
+
+  const defaultValues: VenueFormData = {
+    name: venue?.name ?? '',
+    street_address: venue?.street_address ?? undefined,
+    city: venue?.city ?? '',
+    postal_code: venue?.postal_code ?? '',
+    region: venue?.region ?? '',
+    country: venue?.country ?? '',
+    latitude: venue?.latitude ?? undefined,
+    longitude: venue?.longitude ?? undefined,
+  };
   const { control, handleSubmit } = useForm<VenueFormData>({
-    defaultValues: {
-      ...data?.venue,
-      street_address: data?.venue?.street_address ?? undefined,
-      latitude: data?.venue?.latitude ?? undefined,
-      longitude: data?.venue?.longitude ?? undefined,
-    },
+    defaultValues,
   });
 
   return (
